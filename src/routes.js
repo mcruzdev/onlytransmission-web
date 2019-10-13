@@ -4,6 +4,7 @@ import { BrowserRouter, Switch, Route, Redirect } from "react-router-dom";
 import AdmPage from "./pages/AdmPage";
 import LoginPage from "./pages/LoginPage";
 import HomePage from "./pages/HomePage";
+import LivePage from "./pages/LivePage";
 
 const PrivateRoute = ({ component: Component, ...rest }) => (
   <Route
@@ -24,6 +25,7 @@ const Routes = () => (
       <Route path="/" exact={true} component={HomePage}></Route>
       <PrivateRoute path="/adm" component={AdmPage}></PrivateRoute>
       <Route path="/access" component={LoginPage}></Route>
+      <Route path="/live" component={LivePage}></Route>
     </Switch>
   </BrowserRouter>
 );

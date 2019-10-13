@@ -57,7 +57,7 @@ const useStyles = makeStyles(theme => ({
 
 function HomePage(props) {
   const classes = useStyles();
-
+  const video_id = "K91o0RZkYXw";
   return (
     <div className={classes.root}>
       {/* header */}
@@ -74,6 +74,7 @@ function HomePage(props) {
       <Container maxWidth="lg" className={classes.main}>
         <Grid
           container
+          item
           xs={12}
           sm={12}
           direction="column"
@@ -102,7 +103,7 @@ function HomePage(props) {
                 component="img"
                 alt="Pr. Joaquim Gonçalves Silva"
                 height="800"
-                image={`https://img.youtube.com/vi/Lzbw86UjyOw/0.jpg`}
+                image={`https://img.youtube.com/vi/${video_id}/0.jpg`}
                 title="Pr. Joaquim Gonçalves Silva"
               />
             </CardActionArea>
@@ -115,7 +116,10 @@ function HomePage(props) {
               </Typography>
             </CardContent>
             <CardActions>
-              <Button size="small" color="primary">
+              <Button size="small" color="primary" onClick={() => props.history.push({
+                pathname: "/live",
+                state: { live_id: video_id }
+              })}>
                 Assistir
               </Button>
             </CardActions>
