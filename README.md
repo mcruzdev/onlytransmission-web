@@ -1,3 +1,5 @@
+## Programa com o objetivo de notificar ao usuário quando a live (Youtube) pré-cadastrada encontra-se online e diposnível para assistir
+
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
 ## Available Scripts
