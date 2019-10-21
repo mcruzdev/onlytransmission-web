@@ -1,40 +1,71 @@
-import React from 'react';
-import Avatar from '@material-ui/core/Avatar';
-import Button from '@material-ui/core/Button';
-import CssBaseline from '@material-ui/core/CssBaseline';
-import TextField from '@material-ui/core/TextField';
-import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
-import Typography from '@material-ui/core/Typography';
-import { makeStyles } from '@material-ui/core/styles';
-import Container from '@material-ui/core/Container';
+import React, { useState } from "react";
+import Avatar from "@material-ui/core/Avatar";
+import Button from "@material-ui/core/Button";
+import CssBaseline from "@material-ui/core/CssBaseline";
+import TextField from "@material-ui/core/TextField";
+import LockOutlinedIcon from "@material-ui/icons/LockOutlined";
+import Typography from "@material-ui/core/Typography";
+import { makeStyles } from "@material-ui/core/styles";
+import Container from "@material-ui/core/Container";
+import { authenticate } from "../services/auth";
 
 const useStyles = makeStyles(theme => ({
-  '@global': {
+  "@global": {
     body: {
-      backgroundColor: theme.palette.common.white,
-    },
+      backgroundColor: theme.palette.common.white
+    }
   },
   paper: {
     marginTop: theme.spacing(8),
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center"
   },
   avatar: {
     margin: theme.spacing(1),
-    backgroundColor: theme.palette.secondary.main,
+    backgroundColor: theme.palette.secondary.main
   },
   form: {
-    width: '100%',
-    marginTop: theme.spacing(1),
+    width: "100%",
+    marginTop: theme.spacing(1)
   },
   submit: {
-    margin: theme.spacing(3, 0, 2),
+    margin: theme.spacing(3, 0, 2)
   },
+  errorMessage: {
+    color: "#f50057"
+  }
 }));
 
 export default function LoginPage(props) {
   const classes = useStyles();
+
+  const [values, setValues] = useState({
+    user: "",
+    password: "",
+    error: "",
+    canSubmit: false
+  });
+
+  const handleChangeUser = event => {
+    let canDisableButton = !!(event.target.value && values.password);
+
+    setValues({
+      ...values,
+      user: event.target.value,
+      canSubmit: canDisableButton
+    });
+  };
+
+  const handleChangePassword = event => {
+    let canDisableButton = !!(event.target.value && values.user);
+
+    setValues({
+      ...values,
+      password: event.target.value,
+      canSubmit: canDisableButton
+    });
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -52,10 +83,11 @@ export default function LoginPage(props) {
             margin="normal"
             required
             fullWidth
-            id="email"
+            id="login"
             label="Usuário"
             name="user"
             autoFocus
+            onChange={handleChangeUser}
           />
           <TextField
             variant="outlined"
@@ -66,6 +98,7 @@ export default function LoginPage(props) {
             label="Senha"
             type="password"
             id="password"
+            onChange={handleChangePassword}
           />
           <Button
             type="submit"
@@ -73,15 +106,26 @@ export default function LoginPage(props) {
             variant="contained"
             color="primary"
             className={classes.submit}
-            onClick={(event) => {
-                event.preventDefault();
-                
+            disabled={!values.canSubmit}
+            onClick={async event => {
+              event.preventDefault();
+              const authenticated = await authenticate(values);
+
+              if (authenticated) {
                 props.history.push("/adm");
+              } else {
+                setValues({ ...values, error: "Usuário ou senha inválidos" });
+              }
             }}
           >
             Acessar
           </Button>
         </form>
+        {values.error && (
+          <Typography component="label" color="secondary">
+            {values.error}
+          </Typography>
+        )}
       </div>
     </Container>
   );
