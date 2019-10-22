@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 
 import Container from "@material-ui/core/Container";
 import Grid from "@material-ui/core/Grid";
@@ -18,6 +18,9 @@ import BottomNavigationAction from "@material-ui/core/BottomNavigationAction";
 import BuildIcon from "@material-ui/icons/Build";
 import EventSeatIcon from "@material-ui/icons/EventSeat";
 import ListIcon from "@material-ui/icons/List";
+import { getAll } from "../services/transmission";
+import openSocket from "socket.io-client";
+import { useSnackbar } from "notistack";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -54,10 +57,33 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-
 function HomePage(props) {
+  const [transmissions, setTransmissions] = useState([]);
+  
+  const socket = openSocket("http://localhost:3333/");
+  
+  const { enqueueSnackbar } = useSnackbar();
+
+  socket.on("live:on", transmission => {
+    enqueueSnackbar(`O canal ${transmission.channelName} está online`, {
+      anchorOrigin: {
+        vertical: "bottom",
+        horizontal: "left"
+      },
+      variant: "info"
+    });
+  });
+
+  async function getTransmissions() {
+    const response = await getAll();
+    setTransmissions(response.data.success);
+  }
+
+  useEffect(() => {
+    getTransmissions();
+  }, []);
+
   const classes = useStyles();
-  const video_id = "K91o0RZkYXw";
   return (
     <div className={classes.root}>
       {/* header */}
@@ -96,34 +122,42 @@ function HomePage(props) {
           justify="center"
           className={classes.cardContainer}
         >
-          <Card className={classes.card}>
-            <CardActionArea>
-              <CardMedia
-                className={classes.cardMedia}
-                component="img"
-                alt="Pr. Joaquim Gonçalves Silva"
-                height="800"
-                image={`https://img.youtube.com/vi/${video_id}/0.jpg`}
-                title="Pr. Joaquim Gonçalves Silva"
-              />
-            </CardActionArea>
-            <CardContent>
-              <Typography gutterBottom variant="h5" component="h2">
-                Goiânia - GO
-              </Typography>
-              <Typography variant="body2" color="textSecondary" component="p">
-                Pr. Joaquim Gonçalves Silva
-              </Typography>
-            </CardContent>
-            <CardActions>
-              <Button size="small" color="primary" onClick={() => props.history.push({
-                pathname: "/live",
-                state: { live_id: video_id }
-              })}>
-                Assistir
-              </Button>
-            </CardActions>
-          </Card>
+          {transmissions.map(transmission => (
+            <Card key={transmission._id} className={classes.card}>
+              <CardActionArea>
+                <CardMedia
+                  className={classes.cardMedia}
+                  component="img"
+                  alt={transmission.sponsor}
+                  height="800"
+                  image={`https://img.youtube.com/vi/${transmission.videoId}/0.jpg`}
+                  title="Pr. Joaquim Gonçalves Silva"
+                />
+              </CardActionArea>
+              <CardContent>
+                <Typography gutterBottom variant="h5" component="h2">
+                  {`${transmission.state} - ${transmission.city}`}
+                </Typography>
+                <Typography variant="body2" color="textSecondary" component="p">
+                  {transmission.sponsor}
+                </Typography>
+              </CardContent>
+              <CardActions>
+                <Button
+                  size="small"
+                  color="primary"
+                  onClick={() =>
+                    props.history.push({
+                      pathname: "/live",
+                      state: { live_id: transmission.videoId }
+                    })
+                  }
+                >
+                  Assistir
+                </Button>
+              </CardActions>
+            </Card>
+          ))}
         </Grid>
       </Container>
 
