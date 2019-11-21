@@ -59,9 +59,9 @@ const useStyles = makeStyles(theme => ({
 
 function HomePage(props) {
   const [transmissions, setTransmissions] = useState([]);
-  
+
   const socket = openSocket("http://localhost:3333/");
-  
+
   const { enqueueSnackbar } = useSnackbar();
 
   socket.on("live:on", transmission => {
@@ -72,6 +72,14 @@ function HomePage(props) {
       },
       variant: "info"
     });
+  });
+
+  socket.on("live:off", transmission => {
+    setTransmissions(
+      [].concat(
+        ...transmissions.filter(t => t.channelId !== transmission.channelId)
+      )
+    );
   });
 
   async function getTransmissions() {
@@ -86,17 +94,13 @@ function HomePage(props) {
   const classes = useStyles();
   return (
     <div className={classes.root}>
-      {/* header */}
       <CssBaseline />
       <AppBar className={classes.appBar}>
         <Toolbar>
-          <Typography variant="body1" noWrap>
-            Only Transmission
-          </Typography>
+          <Typography variant="h6">Only Transmission</Typography>
         </Toolbar>
       </AppBar>
 
-      {/* main */}
       <Container maxWidth="lg" className={classes.main}>
         <Grid
           container
@@ -115,13 +119,17 @@ function HomePage(props) {
           </Typography>
         </Grid>
 
-        {/* Cards */}
         <Grid
           container
           direction="row"
           justify="center"
           className={classes.cardContainer}
         >
+          {!transmissions.length && (
+            <Typography color="textSecondary" component="h3">
+              A transmissão está offline
+            </Typography>
+          )}
           {transmissions.map(transmission => (
             <Card key={transmission._id} className={classes.card}>
               <CardActionArea>
@@ -131,7 +139,7 @@ function HomePage(props) {
                   alt={transmission.sponsor}
                   height="800"
                   image={`https://img.youtube.com/vi/${transmission.videoId}/0.jpg`}
-                  title="Pr. Joaquim Gonçalves Silva"
+                  title={transmission.sponsor}
                 />
               </CardActionArea>
               <CardContent>
@@ -161,7 +169,6 @@ function HomePage(props) {
         </Grid>
       </Container>
 
-      {/* footer */}
       <AppBar
         className={classes.appBarFooter}
         position="fixed"
