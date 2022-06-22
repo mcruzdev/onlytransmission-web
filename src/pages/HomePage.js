@@ -138,7 +138,7 @@ function HomePage(props) {
                   component="img"
                   alt={transmission.sponsor}
                   height="800"
-                  image={`https://img.youtube.com/vi/${transmission.videoId}/0.jpg`}
+                  image={`https://i.ytimg.com/vi/${transmission.videoId}/mqdefault_live.jpg`}
                   title={transmission.sponsor}
                 />
               </CardActionArea>
